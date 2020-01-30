@@ -148,12 +148,18 @@ module.exports = {
                     isProduction
                         ? MiniCssExtractPlugin.loader
                         : 'style-loader',
-                    'css-loader',
+                    {
+                        loader: 'css-loader',
+                    },
                     {
                         loader: 'resolve-url-loader',
                     },
                     {
                         loader: 'sass-loader',
+                        options: {
+                            sourceMap: true,
+                            sourceMapContents: false
+                        }
                     }
                 ],
             },
