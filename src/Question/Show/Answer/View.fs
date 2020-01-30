@@ -1,25 +1,25 @@
 module Question.Show.Answer.View
 
 open Types
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
+open Fable.FontAwesome
 open Fulma
-open Fulma.FontAwesome
 open System
 
 let private voteArea score =
     let icon =
         if score > 0 then
-            Fa.I.ThumbsOUp
+            Fa.Solid.ThumbsUp
         else
-            Fa.I.ThumbsODown
+            Fa.Solid.ThumbsDown
 
     let iterationCount =
         Math.Min(5, Math.Abs score - 1)
 
     span [ ]
         [ for i = 0 to iterationCount do
-            yield Icon.faIcon [ ] [ Fa.icon icon ] ]
+            yield Icon.icon [ ] [ Fa.i [ icon ] [] ] ]
 
 let root model dispatch =
     Media.media [ ]

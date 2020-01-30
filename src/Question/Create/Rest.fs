@@ -1,7 +1,5 @@
 module Question.Create.Rest
 
-open Fable.PowerPack
-open Database
 open System
 
 let createQuestion (userId : int, title : string, description : string) =

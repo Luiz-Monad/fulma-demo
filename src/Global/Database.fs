@@ -1,33 +1,14 @@
 [<AutoOpen>]
 module Database
 
-open Fable.Import
-open Fable.Core.JsInterop
 open System
 open Thoth.Json
+open Fable.Core.JsInterop
 
 /// Shared types between the Client and the Database part
 
 // If we update the database content or structure we need to increment this value
 let [<Literal>] CurrentVersion = 9
-
-
-module Encode =
-    let date (date : DateTime) =
-        date.ToString("O")
-        |> Encode.string
-
-module Decode =
-    let date : Decode.Decoder<DateTime> =
-        fun value ->
-            try
-                DateTime.Parse(unbox<string> value)
-                |> Ok
-            with
-                | ex ->
-                    "Error when decoding the date.\nOriginal error is `" + ex.Message + "`"
-                    |> Decode.FailMessage
-                    |> Error
 
 type User =
     { Id : int
@@ -36,16 +17,12 @@ type User =
       Avatar : string }
 
     static member Decoder =
-        Decode.decode
-            (fun id firsntame surname avatar ->
-                { Id = id
-                  Firstname = firsntame
-                  Surname = surname
-                  Avatar = avatar } : User)
-            |> Decode.required "id" Decode.int
-            |> Decode.required "firstname" Decode.string
-            |> Decode.required "surname" Decode.string
-            |> Decode.required "avatar" Decode.string
+        Decode.object
+            (fun is ->
+                { Id = is.Required.Field "id" Decode.int
+                  Firstname = is.Required.Field "firstname" Decode.string
+                  Surname = is.Required.Field "surname" Decode.string
+                  Avatar = is.Required.Field "avatar" Decode.string })
 
     static member Encoder user =
         Encode.object [
@@ -63,23 +40,18 @@ type Answer =
       Score : int }
 
     static member Decoder =
-        Decode.decode
-            (fun id createdAt authorId content score ->
-                { Id = id
-                  CreatedAt = createdAt
-                  AuthorId = authorId
-                  Content = content
-                  Score = score } : Answer)
-            |> Decode.required "id" Decode.int
-            |> Decode.required "created_at" Decode.date
-            |> Decode.required "author_id" Decode.int
-            |> Decode.required "content" Decode.string
-            |> Decode.required "score" Decode.int
+        Decode.object
+            (fun is ->
+                { Id = is.Required.Field "id" Decode.int
+                  CreatedAt = is.Required.Field "created_at" Decode.datetime
+                  AuthorId = is.Required.Field "author_id" Decode.int
+                  Content = is.Required.Field "content" Decode.string
+                  Score =  is.Required.Field "score" Decode.int })
 
     static member Encoder answer =
         Encode.object [
             "id", Encode.int answer.Id
-            "created_at", Encode.date answer.CreatedAt
+            "created_at", Encode.datetime answer.CreatedAt
             "author_id", Encode.int answer.AuthorId
             "content", Encode.string answer.Content
             "score", Encode.int answer.Score
@@ -94,20 +66,14 @@ type Question =
       Answers : Answer [] }
 
     static member Decoder =
-        Decode.decode
-            (fun id authorId title description createdAt answers ->
-                { Id = id
-                  AuthorId = authorId
-                  Title = title
-                  Description = description
-                  CreatedAt = createdAt
-                  Answers = answers } : Question)
-            |> Decode.required "id" Decode.int
-            |> Decode.required "author_id" Decode.int
-            |> Decode.required "title" Decode.string
-            |> Decode.required "description" Decode.string
-            |> Decode.required "created_at" Decode.date
-            |> Decode.required "answers" (Decode.array Answer.Decoder)
+        Decode.object
+            (fun is ->
+                { Id = is.Required.Field "id" Decode.int
+                  AuthorId = is.Required.Field "author_id" Decode.int
+                  Title = is.Required.Field "title" Decode.string
+                  Description = is.Required.Field "description" Decode.string
+                  CreatedAt = is.Required.Field "created_at" Decode.datetime
+                  Answers = is.Required.Field "answers" (Decode.array Answer.Decoder) })
 
     static member Encoder question =
         Encode.object [
@@ -115,7 +81,7 @@ type Question =
             "author_id", Encode.int question.AuthorId
             "title", Encode.string question.Title
             "description", Encode.string question.Description
-            "created_at", Encode.date question.CreatedAt
+            "created_at", Encode.datetime question.CreatedAt
             "answers", Encode.array (question.Answers |> Array.map Answer.Encoder)
         ]
 
@@ -125,14 +91,11 @@ type DatabaseData =
       Users : User [] }
 
     static member Decoder =
-        Decode.decode
-            (fun version questions users ->
-                { Version = version
-                  Questions = questions
-                  Users = users } : DatabaseData)
-            |> Decode.required "version" Decode.int
-            |> Decode.required "questions" (Decode.array Question.Decoder)
-            |> Decode.required "users" (Decode.array User.Decoder)
+        Decode.object
+            (fun is ->
+                { Version = is.Required.Field "version" Decode.int
+                  Questions = is.Required.Field "questions" (Decode.array Question.Decoder)
+                  Users = is.Required.Field "users" (Decode.array User.Decoder) })
 
     static member Encoder databaseData =
         try
@@ -150,11 +113,11 @@ type DatabaseData =
 
 let adapterOptions = jsOptions<Lowdb.AdapterOptions>(fun o ->
     o.serialize <- (
-            unbox >> DatabaseData.Encoder >> Encode.encode 0
+            unbox >> DatabaseData.Encoder >> Encode.toString 0
         ) |> Some
 
     o.deserialize <- (fun (data:string) ->
-        match Decode.decodeString DatabaseData.Decoder data with
+        match Decode.fromString DatabaseData.Decoder data with
         | Ok databaseData -> box databaseData
         | Error msg -> failwith msg
     ) |> Some
@@ -212,7 +175,7 @@ type Database =
 
     static member Restore () =
         Logger.debug "Restore the database"
-        Browser.localStorage.removeItem("database")
+        Browser.WebStorage.localStorage.removeItem("database")
         dbInstance <- None
         Database.Default()
 

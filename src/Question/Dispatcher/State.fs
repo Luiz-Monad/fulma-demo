@@ -2,7 +2,6 @@ module Question.Dispatcher.State
 
 open Elmish
 open Types
-open Fable.Import
 
 let init (questionPage: Router.QuestionPage) =
     // Store current page
@@ -37,5 +36,5 @@ let update user msg (model: Model) =
         { model with CreateModel = Some subModel }, Cmd.map CreateMsg subCmd
 
     | _ ->
-        Browser.console.log("[Question.Dispatcher.State] Discarded message")
+        Browser.Dom.console.log("[Question.Dispatcher.State] Discarded message")
         model, Cmd.none

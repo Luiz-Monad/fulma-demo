@@ -1,12 +1,12 @@
 module App.View
 
 open Elmish
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
+open Fable.FontAwesome
 open State
 open Types
 open Fulma
-open Fulma.FontAwesome
 
 let private navbarEnd =
     Navbar.End.div [ ]
@@ -14,7 +14,7 @@ let private navbarEnd =
             [ Field.div [ Field.IsGrouped ]
                 [ Control.p [ ]
                     [ Button.a [ Button.Props [ Href "https://github.com/MangelMaxime/fulma-demo" ] ]
-                        [ Icon.faIcon [ ] [ Fa.icon Fa.I.Github ]
+                        [ Icon.icon [] [ Fa.i [ Fa.Brand.Github ] [] ]
                           span [ ] [ str "Source" ] ] ] ] ] ]
 
 let private navbarStart dispatch =
@@ -45,7 +45,7 @@ let private navbarView isBurgerOpen dispatch =
                       // Icon display only on mobile
                       Navbar.Item.a [ Navbar.Item.Props [ Href "https://github.com/MangelMaxime/fulma-demo" ]
                                       Navbar.Item.CustomClass "is-hidden-desktop" ]
-                                    [ Icon.faIcon [ ] [ Fa.faLg; Fa.icon Fa.I.Github ] ]
+                                    [ Icon.icon [] [ Fa.i [ Fa.Size Fa.FaLarge; Fa.Brand.Github ] [] ] ]
                       // Make sure to have the navbar burger as the last child of the brand
                       Navbar.burger [ Fulma.Common.CustomClass (if isBurgerOpen then "is-active" else "")
                                       Fulma.Common.Props [
@@ -73,19 +73,16 @@ let private root model dispatch =
 
 open Elmish.React
 open Elmish.Debug
+open Elmish.Navigation
+open Elmish.UrlParser
 open Elmish.HMR
-open Elmish.Browser.Navigation
-open Elmish.Browser.UrlParser
 
 // Init the first datas into the database
 Database.Init()
 
 Program.mkProgram init update root
 |> Program.toNavigable (parseHash Router.pageParser) urlUpdate
-#if DEBUG
-|> Program.withHMR
-#endif
-|> Program.withReact "elmish-app"
+|> Program.withReactBatched "elmish-app"
 #if DEBUG
 |> Program.withDebugger
 #endif
@@ -96,10 +93,13 @@ Program.mkProgram init update root
 
 // Fable.Core.JsInterop.importSideEffects "./b.js"
 
-open Fable.PowerPack
-open Fable.Import
+let libB : Fable.Core.JS.Promise<LibB.Exports> =  Fable.Core.JsInterop.import "importLibB" "./wrapper.js" ()
 
-let libB : JS.Promise<LibB.Exports> =  Fable.Core.JsInterop.import "importLibB" "./wrapper.js" ()
+// /// Tells WebPack to import a file.
+// [<Fable.Core.Emit("import(/* webpackPrefetch: true */ '$0')")>]
+// let inline jsImportFile ( file : string ) : 'T = Fable.Core.Util.jsNative
+
+// let libB : JS.Promise<LibB.Exports> = jsImportFile "importLibB"
 
 libB
 |> Promise.bind (fun lib ->

@@ -2,14 +2,13 @@ module App.State
 
 open Elmish
 open Types
-open Fable.Import
-
+open Browser.Dom
 
 let urlUpdate (result: Option<Router.Page>) model =
     match result with
     | None ->
 
-        Browser.console.error("Error parsing url: " + Browser.window.location.href)
+        console.error("Error parsing url: " + window.location.href)
         model, Router.modifyUrl model.CurrentPage
 
     | Some page ->
@@ -32,7 +31,7 @@ let update msg model =
         { model with QuestionDispatcher = Some subModel }, Cmd.map QuestionDispatcherMsg subCmd
 
     | (QuestionDispatcherMsg capturedMsg, _) ->
-        Browser.console.log("[App.State] Discarded message")
+        console.log("[App.State] Discarded message")
         printfn "%A" capturedMsg
         model, Cmd.none
 

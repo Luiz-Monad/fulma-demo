@@ -1,8 +1,6 @@
 module Question.Index.Rest
 
-open Fable.PowerPack
 open Types
-open Database
 
 let getQuestions _ =
     promise {

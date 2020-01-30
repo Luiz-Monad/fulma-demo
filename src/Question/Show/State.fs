@@ -9,7 +9,7 @@ let init id =
 let update (user : Database.User) msg (model: Model) =
     match msg with
     | GetDetails id ->
-        model, Cmd.ofPromise Rest.getDetails id (GetDetailsRes.Success >> GetDetailsResult) (GetDetailsRes.Error >> GetDetailsResult)
+        model, Cmd.OfPromise.either Rest.getDetails id (GetDetailsRes.Success >> GetDetailsResult) (GetDetailsRes.Error >> GetDetailsResult)
 
     | GetDetailsResult result ->
         match result with
@@ -39,7 +39,7 @@ let update (user : Database.User) msg (model: Model) =
         else
             if model.Reply <> "" then
                 { model with IsWaitingReply = true
-                             Error = "" }, Cmd.ofPromise
+                             Error = "" }, Cmd.OfPromise.either
                                                 Rest.createAnswer
                                                 (model.QuestionId, user.Id, model.Reply)
                                                 (CreateAnswerRes.Success >> CreateAnswerResult)

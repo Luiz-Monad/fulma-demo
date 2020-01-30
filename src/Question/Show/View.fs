@@ -1,12 +1,12 @@
 module Question.Show.View
 
 open Types
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
-open Fable.Import
+open Fable.React
+open Fable.React.Props
 open Fulma
-open Fulma.Extensions
+open Fulma.Extensions.Wikiki
 open Fable.Core.JsInterop
+open Browser.Types
 
 let private loaderView isLoading =
     PageLoader.pageLoader [ PageLoader.IsActive isLoading ]
@@ -24,7 +24,7 @@ let private replyView user model dispatch =
                                             DefaultValue model.Reply
                                             Ref (fun element ->
                                                 if not (isNull element) && model.Reply = "" then
-                                                    let textarea = element :?> Browser.HTMLTextAreaElement
+                                                    let textarea = element :?> HTMLTextAreaElement
                                                     textarea.value <- model.Reply
                                             )
                                             OnChange (fun ev -> !!ev.target?value |> ChangeReply |> dispatch)
@@ -76,7 +76,7 @@ let private pageContent user question model dispatch =
         [ Heading.p [ Heading.Is5 ]
             [ str question.Title ]
           Columns.columns [ Columns.IsCentered ]
-            [ Column.column [ Column.Width(Column.All, Column.IsTwoThirds) ]
+            [ Column.column [ Column.Width(Screen.All, Column.IsTwoThirds) ]
                 [ questionsView question model.Answers dispatch
                   replyView user model dispatch ] ] ]
 

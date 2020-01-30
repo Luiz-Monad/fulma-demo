@@ -1,13 +1,15 @@
 module LibB
 
-open Fable.Core
+open Browser.Dom
+open Fable.Core.JsInterop
 
 type Exports =
     abstract ShowInConsole: msg : string -> unit
 
-let showInConsole (msg : string) = Fable.Import.Browser.console.log(msg)
+let showInConsole (msg : string) = console.log(msg)
 
-[<ExportDefault>]
 let exports =
     { new Exports with
             member __.ShowInConsole(msg) = showInConsole msg }
+
+exportDefault exports

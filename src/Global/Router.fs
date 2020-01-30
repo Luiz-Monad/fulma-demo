@@ -1,9 +1,8 @@
 module Router
 
-open Fable.Import
-open Fable.Helpers.React.Props
-open Elmish.Browser.Navigation
-open Elmish.Browser.UrlParser
+open Fable.React.Props
+open Elmish.Navigation
+open Elmish.UrlParser
 
 type QuestionPage =
     | Index
@@ -40,4 +39,4 @@ let newUrl route =
     route |> toHash |> Navigation.newUrl
 
 let modifyLocation route =
-    Browser.window.location.href <- toHash route
+    Browser.Dom.window.location.href <- toHash route

@@ -9,7 +9,7 @@ let init () =
 let update msg (model: Model) =
     match msg with
     | GetQuestions ->
-        model, Cmd.ofPromise Rest.getQuestions () GetQuestionsResult (GetQuestionsRes.Error >> GetQuestionsResult)
+        model, Cmd.OfPromise.either Rest.getQuestions () GetQuestionsResult (GetQuestionsRes.Error >> GetQuestionsResult)
 
     | GetQuestionsResult result ->
         match result with

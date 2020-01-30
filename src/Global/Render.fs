@@ -1,25 +1,20 @@
 module Render
 
 open Fulma
-open Fulma.BulmaClasses
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
-open Fable.Import
+open Fable.React
+open Fable.React.Props
 open Fable.Core
+open Fable
 
 let pageNotFound =
     Hero.hero [ Hero.IsFullHeight
                 Hero.Color IsDanger ]
         [ Hero.body [ ]
-            [ Container.container [ Container.CustomClass Bulma.Properties.Alignment.HasTextCentered ]
+            [ Container.container [ Container.Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
                 [ Heading.h1 [ ]
                     [ str "404" ] ] ] ]
 
 let converter = Showdown.Globals.Converter.Create()
-
-[<Pojo>]
-type DangerousInnerHtml =
-    { __html : string }
 
 let contentFromMarkdown options str =
     Content.content

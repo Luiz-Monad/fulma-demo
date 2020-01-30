@@ -1,11 +1,10 @@
 module Question.Create.View
 
 open Types
-open Fable.Helpers.React
-open Fable.Helpers.React.Props
+open Fable.React
+open Fable.React.Props
 open Fulma
 open Fable.Core.JsInterop
-
 
 let private form (user : Database.User) (model : Model) dispatch =
     Media.media [ ]

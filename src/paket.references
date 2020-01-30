@@ -1,12 +1,13 @@
 Fable.Core
+Fable.Promise
 Fable.Elmish
 Fable.Elmish.React
 Fable.Elmish.Browser
 Fable.Elmish.Debugger
 Fable.Elmish.HMR
-Fable.PowerPack
 Fable.React
+Fable.FontAwesome
 Fulma
-Fulma.Extensions
 Fulma.Elmish
+Fulma.Extensions.Wikiki.PageLoader
 Thoth.Json
