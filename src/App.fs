@@ -88,23 +88,20 @@ Program.mkProgram init update root
 #endif
 |> Program.run
 
+// https://webpack.js.org/guides/code-splitting/#dynamic-imports
+// https://webpack.js.org/plugins/split-chunks-plugin/#splitchunkscachegroups
+// https://webpack.js.org/api/module-methods/#requirecontext
+// https://webpack.js.org/configuration/externals/#string
 
-// LibA.sayHello "maxime"
-
-// Fable.Core.JsInterop.importSideEffects "./b.js"
-
-let libB : Fable.Core.JS.Promise<LibB.Exports> =  Fable.Core.JsInterop.import "importLibB" "./wrapper.js" ()
-
-// /// Tells WebPack to import a file.
-// [<Fable.Core.Emit("import(/* webpackPrefetch: true */ '$0')")>]
-// let inline jsImportFile ( file : string ) : 'T = Fable.Core.Util.jsNative
-
-// let libB : JS.Promise<LibB.Exports> = jsImportFile "importLibB"
+// Tells WebPack to import a file.
+[<Fable.Core.Emit("require.context('$0', true, /.+/, 'lazy-once')($1).then(module => { return module.default })")>]
+let inline jsImportFile ( context : string ) ( file: string ) : 'T = Fable.Core.Util.jsNative
+let libB : Fable.Core.JS.Promise<unit> = jsImportFile "./LibB" "./LibB.fs"
 
 libB
-|> Promise.bind (fun lib ->
+|> Promise.bind (fun _ ->
     promise {
-        lib.ShowInConsole "Hey I am working from inside a dynamic import"
+        LibB.showInConsole "Hey I am working from inside a lazy import"
     }
 )
 |> Promise.start

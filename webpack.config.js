@@ -37,9 +37,8 @@ var CONFIG = {
                 corejs: 3
             }]
         ],
-        plugins: [
-            "@babel/plugin-syntax-dynamic-import"
-        ]
+
+
     }
 }
 
@@ -78,14 +77,31 @@ module.exports = {
     devtool: isProduction ? 'source-map' : 'eval-source-map',
     optimization: {
         splitChunks: {
+            chunks: 'all',
             cacheGroups: {
-                commons: {
+                vendors: {
                     test: /[\\/]node_modules[\\/]/,
-                    name: "vendors",
-                    chunks: "all"
-                }
-            }
+                    name: 'vendors',
+                    reuseExistingChunk: true,
+                    enforce: true,
+                },
+                fable: {
+                    test: /[\\/][.]fable[\\/]/,
+                    name: "fable",
+                    reuseExistingChunk: true,
+                    enforce: true,
+                },
+                libb: {
+                    test: /[\\/]src[\\/]libb[\\/]/i,
+                    name: "libb",
+                    reuseExistingChunk: true,
+                    enforce: true,
+                },
+            },
         },
+    },
+    externals: {
+        libb: 'libb',
     },
     // Besides the HtmlPlugin, we use the following plugins:
     // PRODUCTION
@@ -100,8 +116,7 @@ module.exports = {
             new CopyWebpackPlugin([{ from: resolve(CONFIG.assetsDir) }]),
         ])
         : commonPlugins.concat([
-            new webpack.HotModuleReplacementPlugin(),
-            new webpack.NamedModulesPlugin()
+            new webpack.HotModuleReplacementPlugin()
         ]),
     resolve: {
         // See https://github.com/fable-compiler/Fable/issues/1490
